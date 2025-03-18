@@ -44,7 +44,8 @@ import mongoose from "mongoose";
 import myUserRoute from "./routes/MyUserRoutes";
 import { v2 as cloudinary } from "cloudinary";
 import myRestaurantRoute from "./routes/MyResturantRoute";
-import RestaurantRoute from "./routes/RestaurantRoute"
+import RestaurantRoute from "./routes/RestaurantRoute";
+import orderRoute from "./routes/OrderRoute"
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string).then(() =>
     console.log("Connected to database!")
@@ -58,14 +59,16 @@ cloudinary.config({
 
 const app = express();
 
-// Enable CORS with specific options
-// app.use(
-//     cors({
-//         origin: ["http://localhost:5173", "http://mern-food-ordering-app-fronted.onrender.com"], // Allow requests from this origin
-//         credentials: true, // Allow cookies and credentials
-//     })
-// );
-app.use(cors());
+//Enable CORS with specific options
+app.use(
+    cors({
+        origin: ["http://localhost:5173", "http://mern-food-ordering-app-fronted.onrender.com"], // Allow requests from this origin
+        credentials: true, // Allow cookies and credentials
+    })
+);
+// app.use(cors());
+
+app.use("/api/order/checkout/webhook", express.raw({ type: "*/*" }));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -84,6 +87,7 @@ app.get("/test", async (req: Request, res: Response) => {
 app.use("/api/my/user", myUserRoute);
 app.use("/api/my/restaurant", myRestaurantRoute);
 app.use("/api/restaurant", RestaurantRoute);
+app.use("/api/order", orderRoute);
 
 // Start the server
 app.listen(3000, () => {
